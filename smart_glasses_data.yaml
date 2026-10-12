@@ -1,0 +1,17 @@
+# Context-Aware Smart Glasses Dataset Config
+# Designed for Patent Claim 3 & Validation Benchmarks (Slide 8 & 14)
+
+path: ./dataset  # dataset root dir (or /kaggle/input/<your-dataset-name> on Kaggle)
+train: images/train  # train images (relative to 'path')
+val: images/val      # val images (relative to 'path')
+test: images/test    # test images (optional)
+
+# Number of classes
+nc: 4
+
+# Class names corresponding directly to the Smart Glasses Hazard Taxonomy
+names:
+  0: person    # Pedestrian safety in walking path
+  1: vehicle   # Dynamic moving threat (car, truck, bus, bike)
+  2: stairs    # Ground-level elevation drop-off
+  3: branch    # Head-height overhanging obstacle

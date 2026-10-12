@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Glasses - Caregiver & Researcher Telemetry Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js CDN for live research analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!-- =========================================================================
+       LOGIN AUTHENTICATION MODAL OVERLAY
+       ========================================================================= -->
+  <div class="login-overlay" id="loginModalOverlay">
+    <div class="login-card glass-card">
+      <div class="login-header">
+        <div class="logo-orb-large"></div>
+        <h2 class="login-title">CONTEXT-AWARE SMART GLASSES</h2>
+        <p class="login-subtitle">Caregiver & Academic Research Portal</p>
+      </div>
+
+      <!-- Role Selector Tabs -->
+      <div class="role-tabs">
+        <button type="button" class="role-tab active" id="tabResearcher" data-role="researcher">
+          <span>🔬</span> Researcher
+        </button>
+        <button type="button" class="role-tab" id="tabCaregiver" data-role="caregiver">
+          <span>🩺</span> Caregiver
+        </button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="login-form">
+        <div class="input-group">
+          <label for="inputUsername">Username or Email</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input type="text" id="inputUsername" placeholder="Enter username or email" required
+              autocomplete="username">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="inputPassword">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="inputPassword" placeholder="Enter password" required
+              autocomplete="current-password">
+            <button type="button" class="btn-toggle-pwd" id="btnTogglePwd" title="Show/Hide password">👁️</button>
+          </div>
+        </div>
+
+        <div class="login-error-msg" id="loginErrorMessage" style="display: none;"></div>
+
+        <button type="submit" class="btn-login" id="btnLoginSubmit">
+          <span id="loginBtnText">Sign In to Dashboard</span>
+          <span class="btn-spinner" id="loginSpinner" style="display: none;"></span>
+        </button>
+
+        <div class="login-divider">
+          <span>OR 1-CLICK QUICK ACCESS</span>
+        </div>
+
+        <!-- Quick Demo Login Buttons -->
+        <div class="quick-logins">
+          <button type="button" class="btn-quick-login" id="btnQuickResearcher">
+            <span>⚡</span> Login as Lead Researcher
+          </button>
+          <button type="button" class="btn-quick-login" id="btnQuickCaregiver">
+            <span>⚡</span> Login as Primary Caregiver
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MAIN DASHBOARD APPLICATION CONTAINER (Hidden until authenticated)
+       ========================================================================= -->
+  <div class="app-container" id="mainDashboardApp">
+    <!-- Top System Telemetry Bar -->
+    <header class="status-header glass-card">
+      <div class="brand">
+        <div class="logo-orb"></div>
+        <div>
+          <h1 class="system-title">CONTEXT-AWARE SMART GLASSES</h1>
+          <p class="system-subtitle">Kinematic Ego-Motion & Spatio-Tactile Assistive Ecosystem</p>
+        </div>
+      </div>
+
+      <div class="telemetry-badges">
+        <div class="badge badge-online" id="statusBadge">
+          <span class="pulse-dot"></span>
+          <span id="systemStatusText">ONLINE</span>
+        </div>
+        <div class="badge badge-mode" id="modeBadge">
+          <span class="badge-label">MODE:</span>
+          <span class="badge-value" id="operationMode">LIVE (Webcam Mode)</span>
+        </div>
+        <div class="badge badge-metric">
+          <span class="badge-label">LATENCY:</span>
+          <span class="badge-value" id="systemLatency">18.4 ms</span>
+        </div>
+        <div class="badge badge-metric">
+          <span class="badge-label">BATTERY:</span>
+          <span class="badge-value" id="batteryLevel">88% (3.9V)</span>
+        </div>
+        <div class="badge badge-metric">
+          <span class="badge-label">SESSION:</span>
+          <span class="badge-value" id="sessionTimer">00:00:00</span>
+        </div>
+
+        <!-- User Profile Pill & Logout -->
+        <div class="user-profile-badge" id="userProfileBadge">
+          <span class="user-avatar" id="userAvatar">🔬</span>
+          <div class="user-details">
+            <span class="user-name" id="userName">Authorized User</span>
+            <span class="user-role" id="userRole">Lead Researcher</span>
+          </div>
+          <button type="button" class="btn-logout" id="btnLogout" title="Sign out">
+            <span>⏻</span> Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Grid Dashboard -->
+    <main class="dashboard-grid">
+      <!-- Section 1: 180° Spatial Radar & Ego-Motion Compensation -->
+      <section class="glass-card radar-card">
+        <div class="card-header">
+          <div class="header-title">
+            <span class="icon">🧭</span>
+            <h2>180° Spatial Radar & Head Kinematics</h2>
+          </div>
+          <div class="yaw-pill">
+            <span>Head Yaw:</span>
+            <strong id="headYawDisplay">+0.0°</strong>
+            <span class="sub-text">(Torso Corrected)</span>
+          </div>
+        </div>
+
+        <div class="radar-container">
+          <canvas id="spatialRadarCanvas" width="460" height="300"></canvas>
+          <div class="radar-sector-labels">
+            <span class="sec-lbl lbl-left">LEFT (0-2)</span>
+            <span class="sec-lbl lbl-center">CENTER (3-4)</span>
+            <span class="sec-lbl lbl-right">RIGHT (5-7)</span>
+          </div>
+        </div>
+
+        <div class="radar-footer">
+          <div class="stat-box">
+            <span class="stat-label">Critical Obstacle</span>
+            <span class="stat-val" id="criticalDistVal">-- m</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Interrupt Gate</span>
+            <span class="stat-val" id="interruptStateVal">IDLE</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Compute Savings</span>
+            <span class="stat-val stat-highlight" id="computeSavingsVal">--%</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Neckband Haptic State Visualizer -->
+      <section class="glass-card haptic-card">
+        <div class="card-header">
+          <div class="header-title">
+            <span class="icon">📳</span>
+            <h2>Neckband 3-Axis Spatio-Tactile Node Visualizer</h2>
+          </div>
+          <span class="badge-pill" id="urgencyPill">SAFE</span>
+        </div>
+
+        <div class="neckband-stage">
+          <div class="neckband-arc"></div>
+
+          <!-- Left LRA Node -->
+          <div class="lra-node" id="nodeLeft">
+            <div class="node-halo"></div>
+            <div class="node-core">
+              <span class="node-letter">L</span>
+            </div>
+            <span class="node-title">LEFT</span>
+            <span class="node-state" id="stateLeft">IDLE</span>
+          </div>
+
+          <!-- Center LRA Node -->
+          <div class="lra-node" id="nodeCenter">
+            <div class="node-halo"></div>
+            <div class="node-core">
+              <span class="node-letter">C</span>
+            </div>
+            <span class="node-title">CENTER</span>
+            <span class="node-state" id="stateCenter">IDLE</span>
+          </div>
+
+          <!-- Right LRA Node -->
+          <div class="lra-node" id="nodeRight">
+            <div class="node-halo"></div>
+            <div class="node-core">
+              <span class="node-letter">R</span>
+            </div>
+            <span class="node-title">RIGHT</span>
+            <span class="node-state" id="stateRight">IDLE</span>
+          </div>
+        </div>
+
+        <div class="waveform-info-card">
+          <div class="wv-row">
+            <span class="wv-label">Active Waveform:</span>
+            <strong class="wv-val" id="activeWaveformName">Strong Click - 100% (#1)</strong>
+          </div>
+          <div class="wv-row">
+            <span class="wv-label">Firing Cadence:</span>
+            <span class="wv-val" id="firingCadence">1.0 Hz (Gentle Ping)</span>
+          </div>
+          <div class="wv-row">
+            <span class="wv-label">Time-to-Collision (TTC):</span>
+            <span class="wv-val highlight-urgency" id="ttcVal">-- s</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Live Hazard Detection Stream -->
+      <section class="glass-card event-stream-card">
+        <div class="card-header">
+          <div class="header-title">
+            <span class="icon">📋</span>
+            <h2>Live Hazard Detection Stream</h2>
+          </div>
+          <span class="badge-count" id="eventCountBadge">0 Events</span>
+        </div>
+
+        <div class="table-container">
+          <table class="stream-table">
+            <thead>
+              <tr>
+                <th>TIME</th>
+                <th>CLASS</th>
+                <th>SECTOR</th>
+                <th>DISTANCE</th>
+                <th>TTC</th>
+                <th>WAVEFORM</th>
+                <th>URGENCY</th>
+              </tr>
+            </thead>
+            <tbody id="eventTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section 4: Session Analytics & Research Data Export -->
+      <section class="glass-card analytics-card">
+        <div class="card-header">
+          <div class="header-title">
+            <span class="icon">📊</span>
+            <h2>Session Analytics & Publication Data</h2>
+          </div>
+          <div class="export-actions">
+            <button class="btn btn-export" id="btnExportCsv">
+              <span>📥</span> Export CSV
+            </button>
+            <button class="btn btn-export-json" id="btnExportJson">
+              <span>📄</span> Export JSON
+            </button>
+          </div>
+        </div>
+
+        <div class="analytics-charts-grid">
+          <div class="chart-wrapper">
+            <h3 class="chart-title">Hazard Class Distribution</h3>
+            <canvas id="hazardDistributionChart"></canvas>
+          </div>
+          <div class="chart-wrapper">
+            <h3 class="chart-title">TTC vs Approach Distance</h3>
+            <canvas id="ttcTimelineChart"></canvas>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Section 5: Live Webcam Sensor Feed (Floating PiP) -->
+      <div class="glass-card video-feed-card" id="videoFeedContainer">
+        <div class="video-header">
+          <span class="pulse-dot"></span>
+          <span class="video-title">Live Sensor View</span>
+        </div>
+        <div class="video-wrapper">
+          <img id="webcam-feed" src="/api/video_feed" alt="Waiting for webcam feed..." />
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="system-footer">
+      <span>Context-Aware Assistive Navigation System</span>
+      <span>Target: IEEE Sensors Journal / MDPI Sensors</span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

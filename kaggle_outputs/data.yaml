@@ -1,0 +1,14 @@
+names:
+  0: person
+  1: bicycle
+  2: car
+  3: motorcycle
+  4: bus
+  5: truck
+  6: stairs
+  7: branch
+nc: 8
+path: /kaggle/working/dataset
+test: images/test
+train: images/train
+val: images/val

@@ -1,0 +1,25 @@
+# ==============================================================================
+# Context-Aware Smart Glasses - Dependencies
+# ==============================================================================
+
+# Core Math & Kinematics
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Vision & Edge AI
+opencv-python>=4.8.0
+ultralytics>=8.0.0
+pillow>=9.5.0
+
+# Cloud & Telemetry
+requests>=2.28.0
+python-dotenv>=1.0.0
+
+# Web Dashboard Local Telemetry Server
+fastapi>=0.100.0
+uvicorn>=0.23.0
+
+# Optional: Hardware I2C / GPIO Drivers (Uncomment when deploying on Raspberry Pi OS)
+# smbus2>=0.4.2
+# RPi.GPIO>=0.7.1
+# firebase-admin>=6.2.0
